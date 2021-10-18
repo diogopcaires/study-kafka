@@ -1,6 +1,7 @@
 package br.com.alura.studykafka.consumers;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -9,43 +10,54 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class FraudDetectorService {
-    public static void main(String[] args) {
+interface ConsumerFunction {
+    void run(ConsumerRecord<String, String> record);
+}
+
+public class MyKafkaConsumer {
+    private String _topic;
+    private String _group;
+    private Pattern _pattern;
+    private ConsumerFunction _fn;
+
+    MyKafkaConsumer(String topic, String group) {
+        this._topic = topic;
+        this._group = group;
+    }
+
+    MyKafkaConsumer(Pattern pattern, String group) {
+        this._pattern = pattern;
+        this._group = group;
+    }
+
+    public void setConsumerFunction(ConsumerFunction consumerFunction) {
+        this._fn = consumerFunction;
+    }
+
+    void run() {
         var consumer = new KafkaConsumer<String, String>(properties());
-        consumer.subscribe(Collections.singletonList("STORE_NEW_ORDER"));
+
+        if (this._pattern == null)
+            consumer.subscribe(Collections.singletonList(this._topic));
+        else
+            consumer.subscribe(this._pattern);
 
         while (true) {
             var records = consumer.poll(Duration.ofMillis(100));
-
             if (!records.isEmpty()) {
-
                 for (var record : records) {
-                    System.out.println("-----------------------");
-                    System.out.println(record.key());
-                    System.out.println(record.value());
-                    System.out.println(record.partition());
-                    System.out.println(record.offset());
-
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    System.out.println("Order check fraud finished...");
+                    this._fn.run(record);
                 }
             }
         }
     }
 
-    private static Properties properties() {
+    private Properties properties() {
         var properties = new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "batatinhafrita123");
-        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this._group);
         return properties;
     }
 }
