@@ -14,14 +14,16 @@ public class NewOrderMain {
         var key = UUID.randomUUID();
 
         //new order message
-        var value = "#12331,123,520";
-        var record = new ProducerRecord("STORE_NEW_ORDER", key.toString(), value);
+       for(var i= 0; i< 50; i++){
+           var value = "#12331,123,520";
+           var record = new ProducerRecord("STORE_NEW_ORDER", UUID.randomUUID().toString(), value);
+           producer.send(record, getCallback()).get();
+       }
 
         //email message
         var email = "Thanks for your order! We are processing your order!";
         var emailRecord = new ProducerRecord("STORE_SEND_EMAIL", key.toString(), email);
 
-        producer.send(record, getCallback()).get();
         producer.send(emailRecord, getCallback()).get();
     }
 
