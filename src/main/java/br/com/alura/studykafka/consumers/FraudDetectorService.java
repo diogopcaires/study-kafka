@@ -16,6 +16,7 @@ public class FraudDetectorService {
 
         while (true) {
             var records = consumer.poll(Duration.ofMillis(100));
+
             if (!records.isEmpty()) {
 
                 for (var record : records) {
@@ -30,6 +31,7 @@ public class FraudDetectorService {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
                     System.out.println("Order check fraud finished...");
                 }
             }
@@ -41,7 +43,9 @@ public class FraudDetectorService {
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, FraudDetectorService.class.getSimpleName());
+
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "batatinhafrita123");
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
         return properties;
     }
 }
