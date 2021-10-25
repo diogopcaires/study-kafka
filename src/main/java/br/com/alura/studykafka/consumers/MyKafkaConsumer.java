@@ -1,5 +1,6 @@
 package br.com.alura.studykafka.consumers;
 
+import br.com.alura.studykafka.serializer.GsonSerializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -10,11 +11,11 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-interface ConsumerFunction {
-    void run(ConsumerRecord<String, String> record);
+interface ConsumerFunction<T> {
+    void run(ConsumerRecord<T, String> record);
 }
 
-public class MyKafkaConsumer {
+public class MyKafkaConsumer<T> {
     private String _topic;
     private String _group;
     private Pattern _pattern;
@@ -35,7 +36,7 @@ public class MyKafkaConsumer {
     }
 
     void run() {
-        var consumer = new KafkaConsumer<String, String>(properties());
+        var consumer = new KafkaConsumer<T, String>(properties());
 
         if (this._pattern == null)
             consumer.subscribe(Collections.singletonList(this._topic));

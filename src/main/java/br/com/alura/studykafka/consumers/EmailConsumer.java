@@ -1,4 +1,5 @@
 package br.com.alura.studykafka.consumers;
+import br.com.alura.studykafka.model.Email;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public class EmailConsumer {

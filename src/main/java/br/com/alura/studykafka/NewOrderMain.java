@@ -1,8 +1,11 @@
 package br.com.alura.studykafka;
 
+import br.com.alura.studykafka.model.Email;
+import br.com.alura.studykafka.model.Order;
 import br.com.alura.studykafka.producers.EmailProducer;
 import br.com.alura.studykafka.producers.NewOrderProducer;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public class NewOrderMain {
@@ -15,9 +18,9 @@ public class NewOrderMain {
         for (var i = 0; i < 5; i++) {
             var orderId = UUID.randomUUID().toString();
             var userId = UUID.randomUUID().toString();
-            Float value = 100.00F;
-            newOrderProducer.sendEvent(orderId, userId, value);
-            emailProducer.sendEvent(userId + "@gmail.com", email);
+            BigDecimal value = new BigDecimal(100.00);
+            newOrderProducer.sendEvent(new Order(orderId, userId, value));
+            emailProducer.sendEvent(new Email(userId + "@gmail.com", email));
         }
     }
 }
